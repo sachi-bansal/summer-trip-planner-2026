@@ -31,6 +31,65 @@ function renderStep1() {
   });
 }
 
+function getBlocks(days) {
+  if (!days.length) return [];
+  const sorted = [...days].sort((a, b) => a - b);
+  const blocks = [];
+  let start = sorted[0], prev = sorted[0];
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] === prev + 1) { prev = sorted[i]; }
+    else { blocks.push({ start, end: prev }); start = prev = sorted[i]; }
+  }
+  blocks.push({ start, end: prev });
+  return blocks;
+}
+
+function showReasonPopover(blockIndex, existingReason, onSave) {
+  const SUGGESTIONS = ['Wedding', 'Conference', 'Travel', 'Work', 'Other'];
+  let current = existingReason || '';
+
+  const el = document.createElement('div');
+  el.className = 'reason-popover';
+  el.innerHTML = `
+    <h4>Reason? <span style="font-weight:400;color:var(--text-muted)">(optional)</span></h4>
+    <div class="reason-chips">
+      ${SUGGESTIONS.map(s => `<div class="chip${current === s ? ' selected' : ''}" data-val="${s}">${s}</div>`).join('')}
+    </div>
+    <input class="reason-input" maxlength="20" placeholder="Or type your own..." value="${current}">
+    <div class="popover-actions">
+      <button class="popover-dismiss">Skip</button>
+      <button class="popover-save">Save</button>
+    </div>`;
+
+  el.style.left = '50%';
+  el.style.top = '50%';
+  el.style.transform = 'translate(-50%, -50%)';
+  document.body.appendChild(el);
+
+  const input = el.querySelector('.reason-input');
+  el.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      el.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      input.value = chip.dataset.val;
+      current = chip.dataset.val;
+    });
+  });
+  input.addEventListener('input', () => {
+    current = input.value;
+    el.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  });
+
+  el.querySelector('.popover-save').addEventListener('click', () => {
+    onSave(current.trim());
+    el.remove();
+  });
+  el.querySelector('.popover-dismiss').addEventListener('click', () => {
+    onSave('');
+    el.remove();
+  });
+}
+
 function renderStep2() {
   app.innerHTML = `
     <div class="step2-header">
@@ -50,6 +109,19 @@ function renderStep2() {
 
   document.getElementById('back-btn').addEventListener('click', renderStep1);
 
+  function handleGestureEnd(lastDay, gestureMode) {
+    if (gestureMode !== 'mark') return;
+    if (!state.unavailableDays.length) return;
+    const blocks = getBlocks(state.unavailableDays);
+    const blockIdx = blocks.findIndex(b => lastDay >= b.start && lastDay <= b.end);
+    if (blockIdx === -1) return;
+    const existingReason = state.reasons[blockIdx] || '';
+    showReasonPopover(blockIdx, existingReason, (reason) => {
+      if (reason) state.reasons[blockIdx] = reason;
+      else delete state.reasons[blockIdx];
+    });
+  }
+
   function handleToggle(day, mode) {
     if (mode === 'mark' && !state.unavailableDays.includes(day)) {
       state.unavailableDays.push(day);
@@ -57,11 +129,10 @@ function renderStep2() {
     } else if (mode === 'unmark') {
       state.unavailableDays = state.unavailableDays.filter(d => d !== day);
     }
-    renderCalendar(document.getElementById('cal-container'), state, handleToggle);
-    // Note: reason popover added in Task 6
+    renderCalendar(document.getElementById('cal-container'), state, handleToggle, handleGestureEnd);
   }
 
-  renderCalendar(document.getElementById('cal-container'), state, handleToggle);
+  renderCalendar(document.getElementById('cal-container'), state, handleToggle, handleGestureEnd);
 
   document.getElementById('gen-btn').addEventListener('click', () => {
     const code = encode(state.unavailableDays, state.reasons);

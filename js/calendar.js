@@ -9,12 +9,12 @@ const MONTHS = [
 ];
 const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
-export function renderCalendar(container, state, onDayToggle) {
+export function renderCalendar(container, state, onDayToggle, onGestureEnd) {
   container.innerHTML = `
     <div class="calendar">
       ${MONTHS.map(m => renderMonth(m, state)).join('')}
     </div>`;
-  attachDragHandlers(container, state, onDayToggle);
+  attachDragHandlers(container, state, onDayToggle, onGestureEnd);
 }
 
 function renderMonth(month, state) {
@@ -33,21 +33,30 @@ function renderMonth(month, state) {
     </div>`;
 }
 
-function attachDragHandlers(container, state, onDayToggle) {
+function attachDragHandlers(container, state, onDayToggle, onGestureEnd) {
   let dragging = false;
-  let markMode = null; // 'mark' or 'unmark'
+  let markMode = null;
+  let lastDay = null;
 
   function dayFromTarget(el) {
     const cell = el.closest('.day-cell:not(.empty)');
     return cell ? parseInt(cell.dataset.day, 10) : null;
   }
 
-  function resetDrag() { dragging = false; markMode = null; }
+  function resetDrag() {
+    if (dragging && lastDay !== null && onGestureEnd) {
+      onGestureEnd(lastDay, markMode);
+    }
+    dragging = false;
+    markMode = null;
+    lastDay = null;
+  }
 
   container.addEventListener('pointerdown', e => {
     const day = dayFromTarget(e.target);
     if (day == null) return;
     dragging = true;
+    lastDay = day;
     markMode = state.unavailableDays.includes(day) ? 'unmark' : 'mark';
     onDayToggle(day, markMode);
     e.target.setPointerCapture(e.pointerId);
@@ -56,7 +65,7 @@ function attachDragHandlers(container, state, onDayToggle) {
   container.addEventListener('pointermove', e => {
     if (!dragging) return;
     const day = dayFromTarget(document.elementFromPoint(e.clientX, e.clientY));
-    if (day != null) onDayToggle(day, markMode);
+    if (day != null) { lastDay = day; onDayToggle(day, markMode); }
   });
 
   document.addEventListener('pointerup', resetDrag);

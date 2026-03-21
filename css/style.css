@@ -148,3 +148,41 @@ body {
   margin: 10px 0;
 }
 .code-instructions { font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; }
+
+/* Reason popover */
+.reason-popover {
+  position: fixed;
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  padding: 16px;
+  z-index: 200;
+  width: 280px;
+  max-width: 90vw;
+}
+.reason-popover h4 { font-size: 0.9rem; color: var(--coral-dark); margin-bottom: 10px; }
+.reason-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.chip {
+  background: var(--cream-dark);
+  border: 1.5px solid var(--coral-light);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  color: var(--coral-dark);
+  cursor: pointer;
+}
+.chip:hover, .chip.selected { background: var(--coral); color: white; border-color: var(--coral); }
+.reason-input {
+  width: 100%;
+  border: 1.5px solid var(--coral-light);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  outline: none;
+  margin-bottom: 10px;
+}
+.reason-input:focus { border-color: var(--coral); }
+.popover-actions { display: flex; gap: 8px; }
+.popover-actions button { flex: 1; padding: 8px; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; }
+.popover-save { background: var(--coral); color: white; }
+.popover-dismiss { background: var(--cream-dark); color: var(--text-muted); }
