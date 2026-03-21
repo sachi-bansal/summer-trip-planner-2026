@@ -15,10 +15,13 @@ export function bestWindows(codesData, topN = 5, minDays = 6) {
   const candidates = [];
   for (let start = 0; start < TOTAL_DAYS; start++) {
     let sum = 0;
+    let min = n;
     for (let len = 1; start + len <= TOTAL_DAYS; len++) {
-      sum += available[start + len - 1];
+      const dayAvail = available[start + len - 1];
+      sum += dayAvail;
+      if (dayAvail < min) min = dayAvail;
       if (len < minDays) continue;
-      candidates.push({ startDay: start, length: len, sum });
+      candidates.push({ startDay: start, length: len, sum, min });
     }
   }
 
@@ -42,7 +45,7 @@ export function bestWindows(codesData, topN = 5, minDays = 6) {
       endDay: c.startDay + c.length - 1,
       length: c.length,
       score,
-      peopleAvailable: Math.round(c.sum / c.length),
+      peopleAvailable: c.min,
       totalPeople: n,
     });
   }

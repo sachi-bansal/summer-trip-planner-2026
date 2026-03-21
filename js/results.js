@@ -10,6 +10,11 @@ const NAMES = [
 const app = document.getElementById('results-app');
 const codesMap = {}; // name -> decoded { unavailableDays, reasons, _raw, _error }
 
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 const START = new Date(2026, 4, 1); // May 1
 function dayToDate(d) {
   const dt = new Date(START);
@@ -18,7 +23,7 @@ function dayToDate(d) {
 }
 
 function render() {
-  const loaded = NAMES.filter(n => codesMap[n]);
+  const loaded = NAMES.filter(n => codesMap[n] && !codesMap[n]._error);
   app.innerHTML = `
     <details class="codes-panel" ${loaded.length < 7 ? 'open' : ''}>
       <summary>Add / update codes</summary>
@@ -161,7 +166,7 @@ function renderHeatmap() {
         const reason = blockIdx !== -1 ? codesMap[name].reasons[blockIdx] : null;
         return `<div class="hm-tooltip-row">
           <div class="dot" style="background:${unavail ? '#e53935' : '#43a047'}"></div>
-          <span>${name.split(' ')[0]} ${unavail ? '— unavailable' + (reason ? ` · <em>${reason}</em>` : '') : '— free'}</span>
+          <span>${name.split(' ')[0]} ${unavail ? '— unavailable' + (reason ? ` · <em>${escapeHtml(reason)}</em>` : '') : '— free'}</span>
         </div>`;
       }).join('');
 

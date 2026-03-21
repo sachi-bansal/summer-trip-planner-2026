@@ -30,9 +30,9 @@ function assert(desc, actual, expected) {
   assert('multiple days round-trip', result.unavailableDays, days);
 }
 
-// With reason
+// With reason — reasons keyed by block start day (day 5 is the first day of the block)
 {
-  const code = encode([5, 6, 7], { 0: 'Wedding' }); // block index 0
+  const code = encode([5, 6, 7], { 5: 'Wedding' });
   const result = decode(code);
   assert('reason round-trips', result.reasons[0], 'Wedding');
 }

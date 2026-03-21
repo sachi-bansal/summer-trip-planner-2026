@@ -55,7 +55,7 @@ function showReasonPopover(blockIndex, existingReason, onSave) {
     <div class="reason-chips">
       ${SUGGESTIONS.map(s => `<div class="chip${current === s ? ' selected' : ''}" data-val="${s}">${s}</div>`).join('')}
     </div>
-    <input class="reason-input" maxlength="20" placeholder="Or type your own..." value="${current}">
+    <input class="reason-input" maxlength="20" placeholder="Or type your own...">
     <div class="popover-actions">
       <button class="popover-dismiss">Skip</button>
       <button class="popover-save">Save</button>
@@ -67,6 +67,7 @@ function showReasonPopover(blockIndex, existingReason, onSave) {
   document.body.appendChild(el);
 
   const input = el.querySelector('.reason-input');
+  input.value = current;
   el.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('click', () => {
       el.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
@@ -113,12 +114,12 @@ function renderStep2() {
     if (gestureMode !== 'mark') return;
     if (!state.unavailableDays.length) return;
     const blocks = getBlocks(state.unavailableDays);
-    const blockIdx = blocks.findIndex(b => lastDay >= b.start && lastDay <= b.end);
-    if (blockIdx === -1) return;
-    const existingReason = state.reasons[blockIdx] || '';
-    showReasonPopover(blockIdx, existingReason, (reason) => {
-      if (reason) state.reasons[blockIdx] = reason;
-      else delete state.reasons[blockIdx];
+    const block = blocks.find(b => lastDay >= b.start && lastDay <= b.end);
+    if (!block) return;
+    const existingReason = state.reasons[block.start] || '';
+    showReasonPopover(block.start, existingReason, (reason) => {
+      if (reason) state.reasons[block.start] = reason;
+      else delete state.reasons[block.start];
     });
   }
 

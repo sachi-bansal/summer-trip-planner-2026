@@ -10,11 +10,15 @@ const MONTHS = [
 const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
 export function renderCalendar(container, state, onDayToggle, onGestureEnd) {
+  if (container._dragAbort) container._dragAbort.abort();
+  const ctrl = new AbortController();
+  container._dragAbort = ctrl;
+
   container.innerHTML = `
     <div class="calendar">
       ${MONTHS.map(m => renderMonth(m, state)).join('')}
     </div>`;
-  attachDragHandlers(container, state, onDayToggle, onGestureEnd);
+  attachDragHandlers(container, state, onDayToggle, onGestureEnd, ctrl.signal);
 }
 
 function renderMonth(month, state) {
@@ -33,7 +37,7 @@ function renderMonth(month, state) {
     </div>`;
 }
 
-function attachDragHandlers(container, state, onDayToggle, onGestureEnd) {
+function attachDragHandlers(container, state, onDayToggle, onGestureEnd, signal) {
   let dragging = false;
   let markMode = null;
   let lastDay = null;
@@ -68,6 +72,6 @@ function attachDragHandlers(container, state, onDayToggle, onGestureEnd) {
     if (day != null) { lastDay = day; onDayToggle(day, markMode); }
   });
 
-  document.addEventListener('pointerup', resetDrag);
-  document.addEventListener('pointercancel', resetDrag);
+  document.addEventListener('pointerup', resetDrag, { signal });
+  document.addEventListener('pointercancel', resetDrag, { signal });
 }
