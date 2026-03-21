@@ -86,7 +86,95 @@ function renderWindows() {
     </div>`;
 }
 
-function renderHeatmap() { /* Task 9 */ }
+function heatColor(available, total) {
+  if (total === 0) return '#e0e0e0';
+  const ratio = available / total;
+  if (ratio === 1) return '#43a047';
+  if (ratio >= 0.85) return '#66bb6a';
+  if (ratio >= 0.7) return '#a5d6a7';
+  if (ratio >= 0.5) return '#ffb74d';
+  if (ratio >= 0.3) return '#ff7043';
+  return '#e53935';
+}
+
+function getBlocks(days) {
+  if (!days.length) return [];
+  const sorted = [...days].sort((a, b) => a - b);
+  const blocks = [];
+  let start = sorted[0], prev = sorted[0];
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] === prev + 1) { prev = sorted[i]; }
+    else { blocks.push({ start, end: prev }); start = prev = sorted[i]; }
+  }
+  blocks.push({ start, end: prev });
+  return blocks;
+}
+
+function renderHeatmap() {
+  const section = document.getElementById('heatmap-section');
+  const loaded = NAMES.filter(n => codesMap[n] && !codesMap[n]._error);
+  if (!loaded.length) { section.innerHTML = ''; return; }
+
+  const MONTHS = [
+    { name: 'May',       days: 31, dayOffset: 0,   startOffset: new Date(2026,4,1).getDay() },
+    { name: 'June',      days: 30, dayOffset: 31,  startOffset: new Date(2026,5,1).getDay() },
+    { name: 'July',      days: 31, dayOffset: 61,  startOffset: new Date(2026,6,1).getDay() },
+    { name: 'August',    days: 31, dayOffset: 92,  startOffset: new Date(2026,7,1).getDay() },
+    { name: 'September', days: 30, dayOffset: 123, startOffset: new Date(2026,8,1).getDay() },
+    { name: 'October',   days: 31, dayOffset: 153, startOffset: new Date(2026,9,1).getDay() },
+  ];
+  const WEEKDAYS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+  section.innerHTML = `
+    <div class="heatmap-section">
+      <div class="section-label">Group Calendar</div>
+      ${MONTHS.map(m => {
+        const cells = [];
+        for (let i = 0; i < m.startOffset; i++) cells.push('<div class="hm-cell empty"></div>');
+        for (let d = 0; d < m.days; d++) {
+          const dayIdx = m.dayOffset + d;
+          const availCount = loaded.filter(n => !codesMap[n].unavailableDays.includes(dayIdx)).length;
+          const color = heatColor(availCount, loaded.length);
+          cells.push(`<div class="hm-cell" data-day="${dayIdx}" style="background:${color}">${d+1}</div>`);
+        }
+        return `
+          <div class="heatmap-month">
+            <div class="month-label">${m.name} 2026</div>
+            <div class="weekday-row">${WEEKDAYS.map(w=>`<span>${w}</span>`).join('')}</div>
+            <div class="heatmap-days">${cells.join('')}</div>
+          </div>`;
+      }).join('')}
+    </div>`;
+
+  section.querySelectorAll('.hm-cell[data-day]').forEach(cell => {
+    cell.addEventListener('click', (e) => {
+      document.querySelector('.hm-tooltip')?.remove();
+      const dayIdx = parseInt(cell.dataset.day, 10);
+      const dt = new Date(2026, 4, 1);
+      dt.setDate(dt.getDate() + dayIdx);
+      const label = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
+
+      const rows = loaded.map(name => {
+        const unavail = codesMap[name].unavailableDays.includes(dayIdx);
+        const blocks = getBlocks(codesMap[name].unavailableDays);
+        const blockIdx = blocks.findIndex(b => dayIdx >= b.start && dayIdx <= b.end);
+        const reason = blockIdx !== -1 ? codesMap[name].reasons[blockIdx] : null;
+        return `<div class="hm-tooltip-row">
+          <div class="dot" style="background:${unavail ? '#e53935' : '#43a047'}"></div>
+          <span>${name.split(' ')[0]} ${unavail ? '— unavailable' + (reason ? ` · <em>${reason}</em>` : '') : '— free'}</span>
+        </div>`;
+      }).join('');
+
+      const tip = document.createElement('div');
+      tip.className = 'hm-tooltip';
+      tip.innerHTML = `<h5>${label}</h5>${rows}`;
+      tip.style.left = Math.min(e.clientX + 10, window.innerWidth - 280) + 'px';
+      tip.style.top = Math.min(e.clientY + 10, window.innerHeight - 200) + 'px';
+      document.body.appendChild(tip);
+      setTimeout(() => document.addEventListener('click', () => tip.remove(), { once: true }), 0);
+    });
+  });
+}
 
 render();
 export { codesMap, NAMES };
