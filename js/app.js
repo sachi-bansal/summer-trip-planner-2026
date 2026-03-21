@@ -1,6 +1,6 @@
 // js/app.js
 import { encode } from './encode.js';
-import { renderCalendar } from './calendar.js';
+import { renderCalendar, teardownCalendar } from './calendar.js';
 
 const NAMES = [
   'Navya Annam', 'Sachi Bansal', 'Alaka Gorur',
@@ -45,6 +45,10 @@ function getBlocks(days) {
 }
 
 function showReasonPopover(blockIndex, existingReason, onSave) {
+  // Close any popover already open (prevents stacking on rapid taps)
+  document.querySelector('.reason-popover')?.remove();
+  document.querySelector('.reason-backdrop')?.remove();
+
   const SUGGESTIONS = ['Wedding', 'Conference', 'Travel', 'Work', 'Other'];
   let current = existingReason || '';
 
@@ -61,10 +65,17 @@ function showReasonPopover(blockIndex, existingReason, onSave) {
       <button class="popover-save">Save</button>
     </div>`;
 
+  const backdrop = document.createElement('div');
+  backdrop.className = 'reason-backdrop';
+  document.body.appendChild(backdrop);
+  document.body.appendChild(el);
+
+  function dismiss() { el.remove(); backdrop.remove(); }
+  backdrop.addEventListener('click', () => { onSave(''); dismiss(); });
+
   el.style.left = '50%';
   el.style.top = '50%';
   el.style.transform = 'translate(-50%, -50%)';
-  document.body.appendChild(el);
 
   const input = el.querySelector('.reason-input');
   input.value = current;
@@ -83,11 +94,11 @@ function showReasonPopover(blockIndex, existingReason, onSave) {
 
   el.querySelector('.popover-save').addEventListener('click', () => {
     onSave(current.trim());
-    el.remove();
+    dismiss();
   });
   el.querySelector('.popover-dismiss').addEventListener('click', () => {
     onSave('');
-    el.remove();
+    dismiss();
   });
 }
 
@@ -108,7 +119,7 @@ function renderStep2() {
       </div>
     </div>`;
 
-  document.getElementById('back-btn').addEventListener('click', renderStep1);
+  document.getElementById('back-btn').addEventListener('click', () => { teardownCalendar(); renderStep1(); });
 
   function handleGestureEnd(lastDay, gestureMode) {
     if (gestureMode !== 'mark') return;

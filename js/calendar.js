@@ -9,16 +9,22 @@ const MONTHS = [
 ];
 const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
+let activeAbort = null; // module-level so it survives container replacement
+
 export function renderCalendar(container, state, onDayToggle, onGestureEnd) {
-  if (container._dragAbort) container._dragAbort.abort();
+  if (activeAbort) activeAbort.abort();
   const ctrl = new AbortController();
-  container._dragAbort = ctrl;
+  activeAbort = ctrl;
 
   container.innerHTML = `
     <div class="calendar">
       ${MONTHS.map(m => renderMonth(m, state)).join('')}
     </div>`;
   attachDragHandlers(container, state, onDayToggle, onGestureEnd, ctrl.signal);
+}
+
+export function teardownCalendar() {
+  if (activeAbort) { activeAbort.abort(); activeAbort = null; }
 }
 
 function renderMonth(month, state) {
