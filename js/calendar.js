@@ -42,6 +42,8 @@ function attachDragHandlers(container, state, onDayToggle) {
     return cell ? parseInt(cell.dataset.day, 10) : null;
   }
 
+  function resetDrag() { dragging = false; markMode = null; }
+
   container.addEventListener('pointerdown', e => {
     const day = dayFromTarget(e.target);
     if (day == null) return;
@@ -57,5 +59,6 @@ function attachDragHandlers(container, state, onDayToggle) {
     if (day != null) onDayToggle(day, markMode);
   });
 
-  container.addEventListener('pointerup', () => { dragging = false; markMode = null; });
+  document.addEventListener('pointerup', resetDrag);
+  document.addEventListener('pointercancel', resetDrag);
 }
