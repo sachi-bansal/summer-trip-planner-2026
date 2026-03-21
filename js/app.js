@@ -130,7 +130,9 @@ function renderStep2() {
     } else if (mode === 'unmark') {
       state.unavailableDays = state.unavailableDays.filter(d => d !== day);
     }
-    renderCalendar(document.getElementById('cal-container'), state, handleToggle, handleGestureEnd);
+    // Update only the toggled cell — no full re-render, so drag state survives
+    const cell = document.querySelector(`#cal-container [data-day="${day}"]`);
+    if (cell) cell.classList.toggle('unavailable', mode === 'mark');
   }
 
   renderCalendar(document.getElementById('cal-container'), state, handleToggle, handleGestureEnd);
