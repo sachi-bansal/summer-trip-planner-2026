@@ -186,3 +186,39 @@ body {
 .popover-actions button { flex: 1; padding: 8px; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; }
 .popover-save { background: var(--coral); color: white; }
 .popover-dismiss { background: var(--cream-dark); color: var(--text-muted); }
+
+/* Results page */
+.section-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--coral-dark); margin-bottom: 10px; }
+.codes-panel { background: white; border-radius: var(--radius); padding: 16px; margin-bottom: 20px; }
+.codes-panel summary { cursor: pointer; font-weight: 600; color: var(--coral-dark); list-style: none; }
+.codes-panel summary::before { content: '+ '; }
+details[open] summary::before { content: '− '; }
+.code-input-row { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+.code-field { display: flex; gap: 6px; align-items: center; }
+.code-field label { font-size: 0.8rem; color: var(--text-muted); min-width: 110px; }
+.code-field input {
+  flex: 1; border: 1.5px solid var(--coral-light); border-radius: var(--radius-sm);
+  padding: 7px 10px; font-size: 0.78rem; font-family: monospace; outline: none;
+}
+.code-field input:focus { border-color: var(--coral); }
+.code-field input.error { border-color: var(--red-full); }
+.code-field .error-msg { font-size: 0.7rem; color: var(--red-full); }
+.status-bar { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px; text-align: center; }
+
+/* Best windows */
+.windows-section { margin-bottom: 28px; }
+.window-card {
+  background: white;
+  border-left: 4px solid var(--coral-light);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.window-card.rank-1 { border-left-color: var(--coral); background: var(--cream-dark); }
+.window-date { font-weight: 600; color: var(--text); font-size: 0.95rem; }
+.window-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+.window-badge { font-size: 0.75rem; font-weight: 700; color: var(--coral); }
+.window-score { font-size: 0.85rem; font-weight: 600; color: var(--coral-dark); }
