@@ -263,8 +263,9 @@ details[open] summary::before { content: '− '; }
 .hm-tooltip {
   position: fixed; background: white; border-radius: var(--radius-sm);
   box-shadow: 0 4px 16px rgba(0,0,0,0.15); padding: 12px 14px;
-  z-index: 300; min-width: 180px; max-width: 260px;
+  z-index: 300; width: 220px;
   font-size: 0.8rem;
+  pointer-events: none;
 }
 .hm-tooltip h5 { color: var(--coral-dark); margin-bottom: 8px; font-size: 0.82rem; }
 .hm-tooltip-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }

@@ -151,32 +151,50 @@ function renderHeatmap() {
       }).join('')}
     </div>`;
 
+  let activeTip = null;
+
+  function buildTooltip(dayIdx) {
+    const dt = new Date(2026, 4, 1);
+    dt.setDate(dt.getDate() + dayIdx);
+    const label = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
+
+    const rows = loaded.map(name => {
+      const unavail = codesMap[name].unavailableDays.includes(dayIdx);
+      const blocks = getBlocks(codesMap[name].unavailableDays);
+      const blockIdx = blocks.findIndex(b => dayIdx >= b.start && dayIdx <= b.end);
+      const reason = blockIdx !== -1 ? codesMap[name].reasons[blockIdx] : null;
+      return `<div class="hm-tooltip-row">
+        <div class="dot" style="background:${unavail ? '#e53935' : '#43a047'}"></div>
+        <span>${name.split(' ')[0]} ${unavail ? '— unavailable' + (reason ? ` · <em>${escapeHtml(reason)}</em>` : '') : '— free'}</span>
+      </div>`;
+    }).join('');
+
+    const tip = document.createElement('div');
+    tip.className = 'hm-tooltip';
+    tip.innerHTML = `<h5>${label}</h5>${rows}`;
+    return tip;
+  }
+
   section.querySelectorAll('.hm-cell[data-day]').forEach(cell => {
-    cell.addEventListener('click', (e) => {
-      document.querySelector('.hm-tooltip')?.remove();
+    cell.addEventListener('mouseenter', () => {
+      activeTip?.remove();
       const dayIdx = parseInt(cell.dataset.day, 10);
-      const dt = new Date(2026, 4, 1);
-      dt.setDate(dt.getDate() + dayIdx);
-      const label = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
-
-      const rows = loaded.map(name => {
-        const unavail = codesMap[name].unavailableDays.includes(dayIdx);
-        const blocks = getBlocks(codesMap[name].unavailableDays);
-        const blockIdx = blocks.findIndex(b => dayIdx >= b.start && dayIdx <= b.end);
-        const reason = blockIdx !== -1 ? codesMap[name].reasons[blockIdx] : null;
-        return `<div class="hm-tooltip-row">
-          <div class="dot" style="background:${unavail ? '#e53935' : '#43a047'}"></div>
-          <span>${name.split(' ')[0]} ${unavail ? '— unavailable' + (reason ? ` · <em>${escapeHtml(reason)}</em>` : '') : '— free'}</span>
-        </div>`;
-      }).join('');
-
-      const tip = document.createElement('div');
-      tip.className = 'hm-tooltip';
-      tip.innerHTML = `<h5>${label}</h5>${rows}`;
-      tip.style.left = Math.min(e.clientX + 10, window.innerWidth - 280) + 'px';
-      tip.style.top = Math.min(e.clientY + 10, window.innerHeight - 200) + 'px';
+      const tip = buildTooltip(dayIdx);
+      const rect = cell.getBoundingClientRect();
+      const tipW = 220;
+      const left = rect.right + 8 + tipW > window.innerWidth
+        ? rect.left - tipW - 8
+        : rect.right + 8;
+      const top = Math.min(rect.top, window.innerHeight - 220);
+      tip.style.left = left + 'px';
+      tip.style.top = top + 'px';
       document.body.appendChild(tip);
-      setTimeout(() => document.addEventListener('click', () => tip.remove(), { once: true }), 0);
+      activeTip = tip;
+    });
+
+    cell.addEventListener('mouseleave', () => {
+      activeTip?.remove();
+      activeTip = null;
     });
   });
 }
