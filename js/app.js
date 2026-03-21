@@ -18,14 +18,25 @@ function renderStep1() {
       If a date isn't marked, you're assumed free.</p>
     </div>
     <div class="name-list">
-      ${NAMES.map(n => `<button class="name-btn" data-name="${n}">${n}</button>`).join('')}
+      ${NAMES.map(n => {
+        const isCurrent = n === state.name && state.unavailableDays.length > 0;
+        return `<button class="name-btn${isCurrent ? ' has-dates' : ''}" data-name="${n}">
+          <span>${n}</span>
+          ${isCurrent ? '<span class="name-edit-tag">tap to edit</span>' : ''}
+        </button>`;
+      }).join('')}
     </div>`;
 
   app.querySelectorAll('.name-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      state.name = btn.dataset.name;
-      state.unavailableDays = [];
-      state.reasons = {};
+      const clicked = btn.dataset.name;
+      if (clicked !== state.name) {
+        // Switching to a different name — clear previous selections
+        state.unavailableDays = [];
+        state.reasons = {};
+      }
+      // Same name re-selected: preserve existing dates so they can be modified
+      state.name = clicked;
       renderStep2();
     });
   });

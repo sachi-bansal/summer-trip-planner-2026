@@ -98,6 +98,23 @@ body {
   color: white;
   border-color: var(--coral);
 }
+.name-btn.has-dates {
+  border-color: var(--coral);
+  color: var(--coral-dark);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.name-btn.has-dates:hover { background: var(--coral); color: white; }
+.name-btn.has-dates:hover .name-edit-tag { background: rgba(255,255,255,0.25); color: white; }
+.name-edit-tag {
+  font-size: 0.72rem;
+  font-weight: 500;
+  background: var(--coral-light);
+  color: var(--coral-dark);
+  border-radius: 20px;
+  padding: 2px 8px;
+}
 
 /* Step 2 header */
 .step2-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
