@@ -59,18 +59,23 @@ function attachDragHandlers(container, state, onDayToggle, onGestureEnd, signal)
   container.addEventListener('pointerdown', e => {
     const day = dayFromTarget(e.target);
     if (day == null) return;
+    e.preventDefault(); // prevent touch scroll while selecting
     dragging = true;
     lastDay = day;
     markMode = state.unavailableDays.includes(day) ? 'unmark' : 'mark';
     onDayToggle(day, markMode);
-    e.target.setPointerCapture(e.pointerId);
+    // Do NOT setPointerCapture — the day cell is destroyed on re-render,
+    // which would fire pointercancel and kill the drag immediately.
   });
 
-  container.addEventListener('pointermove', e => {
+  // Listen on document so drag works even after the calendar re-renders
+  document.addEventListener('pointermove', e => {
     if (!dragging) return;
-    const day = dayFromTarget(document.elementFromPoint(e.clientX, e.clientY));
-    if (day != null) { lastDay = day; onDayToggle(day, markMode); }
-  });
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    if (!el) return;
+    const day = dayFromTarget(el);
+    if (day != null && day !== lastDay) { lastDay = day; onDayToggle(day, markMode); }
+  }, { signal });
 
   document.addEventListener('pointerup', resetDrag, { signal });
   document.addEventListener('pointercancel', resetDrag, { signal });
