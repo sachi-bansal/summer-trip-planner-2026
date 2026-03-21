@@ -777,16 +777,18 @@ function renderStep2() {
 
   document.getElementById('back-btn').addEventListener('click', renderStep1);
 
-  renderCalendar(document.getElementById('cal-container'), state, (day, mode) => {
+  function handleToggle(day, mode) {
     if (mode === 'mark' && !state.unavailableDays.includes(day)) {
       state.unavailableDays.push(day);
       state.unavailableDays.sort((a, b) => a - b);
     } else if (mode === 'unmark') {
       state.unavailableDays = state.unavailableDays.filter(d => d !== day);
     }
-    renderCalendar(document.getElementById('cal-container'), state, arguments.callee);
+    renderCalendar(document.getElementById('cal-container'), state, handleToggle);
     // Note: reason popover added in Task 6
-  });
+  }
+
+  renderCalendar(document.getElementById('cal-container'), state, handleToggle);
 
   document.getElementById('gen-btn').addEventListener('click', () => {
     const code = encode(state.unavailableDays, state.reasons);
@@ -1039,7 +1041,13 @@ function render() {
       const raw = input.value.trim();
       if (!raw) { delete codesMap[name]; render(); return; }
       const result = decode(raw);
-      codesMap[name] = { ...result, _raw: raw, _error: result.unavailableDays.length === 0 && raw.length > 0 && raw.length !== 31 };
+      // decode() returns empty unavailableDays for both "all free" (valid) and truly invalid codes.
+      // Distinguish by checking: if the bitfield portion (first 31 chars before any '_') is not
+      // exactly 31 base62 chars, it's malformed. A valid all-free code is exactly 31 chars.
+      // A valid code with reasons is 33+ chars (31 + '_' + at least one reason char).
+      const bitfieldPart = raw.split('_')[0];
+      const _error = bitfieldPart.length !== 31 || /[^0-9A-Za-z]/.test(bitfieldPart);
+      codesMap[name] = { ...result, _raw: raw, _error };
       render();
     });
   });
