@@ -75,3 +75,26 @@ body {
   border: 2px solid var(--coral);
   color: var(--coral-dark);
 }
+
+/* Name picker */
+.welcome { text-align: center; padding: 24px 0 16px; }
+.welcome h2 { font-size: 1.3rem; color: var(--coral-dark); margin-bottom: 8px; }
+.welcome p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
+
+.name-list { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+.name-btn {
+  background: white;
+  border: 2px solid var(--coral-light);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-size: 1rem;
+  color: var(--coral-dark);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+}
+.name-btn:hover, .name-btn.selected {
+  background: var(--coral);
+  color: white;
+  border-color: var(--coral);
+}
