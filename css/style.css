@@ -26,6 +26,8 @@ body {
   background: var(--cream);
   color: var(--text);
   min-height: 100vh;
+  /* Prevent double-tap zoom on iOS everywhere except intentional pinch */
+  touch-action: manipulation;
 }
 
 .header {
@@ -146,7 +148,7 @@ body {
   border: 1.5px solid var(--coral-light);
   border-radius: var(--radius-sm);
   padding: 10px 12px;
-  font-size: 0.9rem;
+  font-size: 1rem; /* ≥16px prevents iOS auto-zoom on focus */
   color: var(--text);
   background: white;
   margin-bottom: 8px;
@@ -164,7 +166,7 @@ body {
   border: 1.5px solid var(--coral-light);
   border-radius: var(--radius-sm);
   padding: 10px 12px;
-  font-size: 0.82rem;
+  font-size: 1rem; /* ≥16px prevents iOS auto-zoom on focus */
   font-family: monospace;
   outline: none;
 }
@@ -273,7 +275,7 @@ body {
   border: 1.5px solid var(--coral-light);
   border-radius: var(--radius-sm);
   padding: 8px 10px;
-  font-size: 0.85rem;
+  font-size: 1rem; /* ≥16px prevents iOS auto-zoom on focus */
   outline: none;
   margin-bottom: 10px;
 }
@@ -294,7 +296,7 @@ details[open] summary::before { content: '− '; }
 .code-field label { font-size: 0.8rem; color: var(--text-muted); min-width: 110px; }
 .code-field input {
   flex: 1; border: 1.5px solid var(--coral-light); border-radius: var(--radius-sm);
-  padding: 7px 10px; font-size: 0.78rem; font-family: monospace; outline: none;
+  padding: 7px 10px; font-size: 1rem; font-family: monospace; outline: none; /* ≥16px prevents iOS auto-zoom */
 }
 .code-field input:focus { border-color: var(--coral); }
 .code-field input.error { border-color: var(--red-full); }
