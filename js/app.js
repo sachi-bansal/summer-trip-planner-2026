@@ -1,5 +1,5 @@
 // js/app.js
-import { encode } from './encode.js';
+import { encode, decode } from './encode.js';
 import { renderCalendar, teardownCalendar } from './calendar.js';
 
 const NAMES = [
@@ -25,20 +25,53 @@ function renderStep1() {
           ${isCurrent ? '<span class="name-edit-tag">tap to edit</span>' : ''}
         </button>`;
       }).join('')}
+    </div>
+    <div class="edit-code-section">
+      <div class="edit-code-label">Need to edit your dates?</div>
+      <p class="edit-code-hint">Paste your previous code below — your calendar will reload with your old selections so you can adjust and regenerate.</p>
+      <select id="edit-name-select">
+        <option value="">Select your name...</option>
+        ${NAMES.map(n => `<option value="${n}">${n}</option>`).join('')}
+      </select>
+      <div class="edit-code-row">
+        <input type="text" id="edit-code-input" placeholder="Paste your code here..." spellcheck="false" autocomplete="off">
+        <button id="edit-load-btn">Load</button>
+      </div>
+      <div id="edit-code-error" class="edit-code-error"></div>
     </div>`;
 
   app.querySelectorAll('.name-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const clicked = btn.dataset.name;
       if (clicked !== state.name) {
-        // Switching to a different name — clear previous selections
         state.unavailableDays = [];
         state.reasons = {};
       }
-      // Same name re-selected: preserve existing dates so they can be modified
       state.name = clicked;
       renderStep2();
     });
+  });
+
+  document.getElementById('edit-load-btn').addEventListener('click', () => {
+    const errEl = document.getElementById('edit-code-error');
+    const name = document.getElementById('edit-name-select').value;
+    const raw = document.getElementById('edit-code-input').value.trim();
+    errEl.textContent = '';
+
+    if (!name) { errEl.textContent = 'Please select your name.'; return; }
+    if (!raw)  { errEl.textContent = 'Please paste your code.'; return; }
+
+    const bitfieldPart = raw.split('_')[0];
+    if (bitfieldPart.length !== 31 || /[^0-9A-Za-z]/.test(bitfieldPart)) {
+      errEl.textContent = 'Invalid code — please check and re-paste.';
+      return;
+    }
+
+    const result = decode(raw);
+    state.name = name;
+    state.unavailableDays = result.unavailableDays;
+    state.reasons = result.reasons;
+    renderStep2();
   });
 }
 

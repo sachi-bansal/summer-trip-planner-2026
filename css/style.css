@@ -116,6 +116,73 @@ body {
   padding: 2px 8px;
 }
 
+/* Edit-code section */
+.edit-code-section {
+  margin-top: 32px;
+  border-top: 1.5px dashed var(--coral-light);
+  padding-top: 20px;
+}
+.edit-code-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--coral-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+.edit-code-hint {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.edit-code-section select {
+  width: 100%;
+  border: 1.5px solid var(--coral-light);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: white;
+  margin-bottom: 8px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23bf360c' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+.edit-code-section select:focus { border-color: var(--coral); }
+.edit-code-row { display: flex; gap: 8px; }
+.edit-code-row input {
+  flex: 1;
+  border: 1.5px solid var(--coral-light);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  font-family: monospace;
+  outline: none;
+}
+.edit-code-row input:focus { border-color: var(--coral); }
+.edit-code-row button {
+  background: var(--coral);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.edit-code-row button:hover { background: var(--coral-dark); }
+.edit-code-error {
+  font-size: 0.78rem;
+  color: #e53935;
+  margin-top: 6px;
+  min-height: 1em;
+}
+
 /* Step 2 header */
 .step2-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
 .back-btn { background: none; border: none; color: var(--coral); cursor: pointer; font-size: 0.9rem; }
