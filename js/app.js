@@ -55,10 +55,14 @@ function getBlocks(days) {
   return blocks;
 }
 
-function showReasonPopover(blockIndex, existingReason, onSave) {
-  // Close any popover already open (prevents stacking on rapid taps)
+function closePopover() {
   document.querySelector('.reason-popover')?.remove();
   document.querySelector('.reason-backdrop')?.remove();
+}
+
+function showReasonPopover(blockIndex, existingReason, onSave) {
+  // Close any popover already open (prevents stacking on rapid taps)
+  closePopover();
 
   const SUGGESTIONS = ['Wedding', 'Conference', 'Travel', 'Work', 'Other'];
   let current = existingReason || '';
@@ -114,6 +118,7 @@ function showReasonPopover(blockIndex, existingReason, onSave) {
 }
 
 function renderStep2() {
+  closePopover();
   app.innerHTML = `
     <div class="step2-header">
       <button class="back-btn" id="back-btn">← Change name</button>
@@ -130,7 +135,11 @@ function renderStep2() {
       </div>
     </div>`;
 
-  document.getElementById('back-btn').addEventListener('click', () => { teardownCalendar(); renderStep1(); });
+  document.getElementById('back-btn').addEventListener('click', () => {
+    closePopover();
+    teardownCalendar();
+    renderStep1();
+  });
 
   function handleGestureEnd(lastDay, gestureMode) {
     if (gestureMode !== 'mark') return;
